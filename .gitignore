@@ -1,3 +1,6 @@
 # STM Cube IDE workspace metadata
 .metadata/
 RemoteSystemsTempFiles/
+
+# VS Code workspace metadata
+.vscode/

@@ -2,3 +2,6 @@
 .cproject
 .project
 .settings/
+
+# Build-generated outputs
+Debug/
