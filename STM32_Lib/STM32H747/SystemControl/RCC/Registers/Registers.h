@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-union SourceControl_Reg
+union SourceControlReg
 {
 	uint32_t all;
 	struct
@@ -34,6 +34,11 @@ union SourceControl_Reg
 		bool Pll3On : 1;
 		bool Pll3Ready : 1;
 	} bits;
+};
+
+struct RccRegisterBank
+{
+	SourceControlReg	SourceControl;
 };
 
 #endif

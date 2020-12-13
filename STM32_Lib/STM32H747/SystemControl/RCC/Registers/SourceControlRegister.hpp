@@ -5,7 +5,7 @@
 
 #include <Common/Interfaces/RegisterInterface.hpp>
 
-namespace stm32
+namespace Stm32
 {
 namespace sysctrl
 {
@@ -14,11 +14,11 @@ namespace rcc
 namespace regs
 {
 
-class SourceControlReg : public stm32::intf::RegisterInterface<union SourceControl_Reg>
+class SourceControlRegister : public stm32::intf::RegisterInterface<union SourceControl_Reg>
 {
 public:
 
-	SourceControlReg(union SourceControl_Reg* const regPtr);
+	SourceControlRegister(union SourceControlReg* const regPtr);
 
 	bool GetHsiOn() const;
 	void SetHsiOn(bool val);
@@ -94,4 +94,3 @@ public:
 }
 
 #endif
-
