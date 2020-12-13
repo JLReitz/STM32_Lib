@@ -3,7 +3,7 @@
 
 #include "../Registers/SourceControlRegister.hpp"
 
-namespace Stm32
+namespace stm32
 {
 namespace sysctrl
 {
@@ -13,7 +13,7 @@ namespace impl
 {
 
 /* ================================================================================================
- *  Stm32::sysctrl::rcc::impl::RccImpl
+ *  stm32::sysctrl::rcc::impl::RccImpl
  * ================================================================================================
  *
  * <Enter module description here>
@@ -29,7 +29,7 @@ protected:
 
 private:
 
-	Stm32::sysctrl::rcc::regs::SourceControlRegister mSourceControlReg;
+	stm32::sysctrl::rcc::regs::SourceControlRegister mSourceControlReg;
 };
 
 }

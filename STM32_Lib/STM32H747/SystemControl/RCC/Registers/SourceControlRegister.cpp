@@ -1,6 +1,6 @@
 #include "SourceControlRegister.hpp"
 
-namespace Stm32
+namespace stm32
 {
 namespace sysctrl
 {
