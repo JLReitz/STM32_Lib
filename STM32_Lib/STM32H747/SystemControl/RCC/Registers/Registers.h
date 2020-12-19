@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-union SourceControlReg
+union RccSourceControlReg
 {
 	uint32_t all;
 	struct
@@ -38,7 +38,7 @@ union SourceControlReg
 
 struct RccRegisterBank
 {
-	SourceControlReg	SourceControl;
+	RccSourceControlReg	SourceControl;
 };
 
 #endif

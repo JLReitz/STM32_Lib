@@ -14,11 +14,11 @@ namespace rcc
 namespace regs
 {
 
-class SourceControlRegister : public stm32::intf::RegisterInterface<union SourceControl_Reg>
+class SourceControlRegister : public stm32::intf::RegisterInterface<union RccSourceControlReg>
 {
 public:
 
-	SourceControlRegister(union SourceControlReg* const regPtr);
+	SourceControlRegister(union RccSourceControlReg* const regPtr);
 
 	bool GetHsiOn() const;
 	void SetHsiOn(bool val);

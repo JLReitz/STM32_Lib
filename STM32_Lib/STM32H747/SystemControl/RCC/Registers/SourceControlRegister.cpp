@@ -11,8 +11,8 @@ namespace regs
 
 using stm32::intf::RegisterInterface;
 
-SourceControlRegister::SourceControlRegister(union SourceControlReg* const regPtr)
-	: RegisterInterface<union SourceControl_Reg>(regPtr)
+SourceControlRegister::SourceControlRegister(union RccSourceControlReg* const regPtr)
+	: RegisterInterface<union RccSourceControlReg>(regPtr)
 {
 }
 
