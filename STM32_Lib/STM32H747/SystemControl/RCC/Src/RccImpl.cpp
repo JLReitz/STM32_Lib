@@ -19,7 +19,11 @@ namespace impl
 // Public /////////////////////////////////////////////////////////////////
 
 RccImpl::RccImpl(struct RccRegisterBank* const regs)
-:	 mSourceControlReg(&regs->SourceControl)
+:	 mSourceControlReg(&regs->SourceControl), mHsiConfigurationReg(&regs->HsiConfiguration),
+	 mClockRecoveryRcReg(&regs->ClockRecoveryRc), mCsiConfigurationReg(&regs->CsiConfiguration),
+	 mClockConfigurationReg(&regs->ClockConfiguration), mD1ClockConfigurationReg(&regs->D1ClockConfiguration),
+	 mD2ClockConfigurationReg(&regs->D2ClockConfiguration), mD3ClockConfigurationReg(&regs->D3ClockConfiguration),
+	 mPllClockSourceSelectReg(&regs->PllClockSourceSelect)
 {
 }
 
