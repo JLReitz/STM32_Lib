@@ -193,10 +193,8 @@ class ModuleObjectGenerator(object):
         
         # Include register object headers
         for reg in self.registerObjectGenerators:
-            substituteString += "#include \"../Registers/" + reg.RegObjectName() + "Register.hpp\"\n\n"
-
-
-        # TODO add header description
+            substituteString += "#include \"../Registers/" + reg.RegObjectName() + "Register.hpp\"\n"
+        substituteString += "\n"
 
         substituteString += "{NAMESPACEBLOCK}\n" \
                             "/* ================================================================================================\n" \
@@ -204,7 +202,7 @@ class ModuleObjectGenerator(object):
                             " * ================================================================================================\n" \
                             " *\n" \
                             " * <Enter module description here>\n" \
-                            " */\n\n" \
+                            " */\n" \
                             "class {MODULENAME}Impl\n" \
                             "{\n" \
                             "public:\n\n" \
@@ -293,7 +291,7 @@ argumentParser.add_argument('namespaces', nargs='+', help="List of namespaces, t
 args = argumentParser.parse_args()
 
 namespaceMatcher = re.compile(r"namespace (\w+)")
-registerMatcher = re.compile(r"union " + args.module + r"(\w+)Reg\n{(.*)};", re.MULTILINE | re.DOTALL)
+registerMatcher = re.compile(r"union " + args.module + r"(\w+)Reg\n{\n\s*(\w+) all;\n\s*struct\n\s*{(\s*\w+ \w+\s*:\s*\d+;\n)*\s*} bits;\n};", re.MULTILINE | re.DOTALL)
 registerBankMatcher = re.compile(r"struct (\w+)RegisterBank\n{(.*)};", re.MULTILINE | re.DOTALL)
 registerFieldMatcher = re.compile(r"(\w+) (\w+)\s*:\s*(\d+);")
 
@@ -351,6 +349,7 @@ if(regBankMatch.group(1) != args.module):
 
 # Begin generation
 print("Generating implementation for module " + args.module + " in directory " + args.dir)
+print("") # Print extra newline for console readability
 print("Using namespaces:")
 for ns in args.namespaces:
     print("\t" + ns)
@@ -366,7 +365,7 @@ for reg in registers:
 
     registerGenerator = RegisterObjectGenerator(args.module, regName, args.namespaces, regFileDir) # Create new register object generator
 
-    fields = registerFieldMatcher.finditer(reg.group(2)) # Find all iterations of bitfields within the register struct
+    fields = registerFieldMatcher.finditer(reg.group(0)) # Find all iterations of bitfields within the register struct
     for field in fields:
         fieldType = field.group(1)
         fieldName = field.group(2)
