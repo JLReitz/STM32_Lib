@@ -68,7 +68,7 @@ class RegisterObjectGenerator(object):
                            "class {REGOBJECTNAME}Register : public stm32::intf::RegisterInterface<union {MODULENAME}{REGOBJECTNAME}Reg>\n" \
                            "{\n" \
                            "public:\n\n" \
-                           "\t{REGOBJECTNAME}Register(union {MODULENAME}{REGOBJECTNAME}Reg* const regPtr);\n\n"
+                           "\t{REGOBJECTNAME}Register(union {MODULENAME}{REGOBJECTNAME}Reg* const regPtr);\n"
         
         # Capitalize register object name and substitute into string above
         capRegObjectNameString = self.regObjectNameString.upper()
@@ -91,8 +91,8 @@ class RegisterObjectGenerator(object):
         return substituteString
 
     def __GenerateHeaderFieldSet(self, fieldType, fieldName):
-        substituteString = "\t{FIELDTYPE} Get{FIELDNAME}() const;\n" \
-                           "\tvoid Set{FIELDNAME}({FIELDTYPE} val);\n\n"
+        substituteString = "\n\t{FIELDTYPE} Get{FIELDNAME}() const;\n" \
+                           "\tvoid Set{FIELDNAME}({FIELDTYPE} val);\n"
 
         substituteString = self.fieldNameSubstitute.sub(fieldName, substituteString)
         substituteString = self.fieldTypeSubstitute.sub(fieldType, substituteString)
@@ -140,6 +140,9 @@ class RegisterObjectGenerator(object):
 
 class ModuleObjectGenerator(object):
     # Public methods
+    def AddMember(self, member):
+        self.memberRegisters.append(member)
+
     def AddRegisterObject(self, registerObjectGenerator):
         self.registerObjectGenerators.append(registerObjectGenerator)
 
@@ -167,6 +170,7 @@ class ModuleObjectGenerator(object):
         self.endNamespaceBlockSubstitute = re.compile(r"({ENDNAMESPACEBLOCK})")
 
         self.moduleNameString = moduleName
+        self.memberRegisters = []
         self.registerObjectGenerators = []
 
         # Generate the namespace extension for this module's registers
@@ -210,8 +214,8 @@ class ModuleObjectGenerator(object):
                             "protected:\n\n" \
                             "private:\n\n"
         
-        for reg in self.registerObjectGenerators:
-            substituteString += "\t{REGSNAMESPACE}::" + reg.RegObjectName() + "Register m" + reg.RegObjectName() + "Reg;\n"
+        for reg in self.memberRegisters:
+            substituteString += "\t{REGSNAMESPACE}::" + reg[0] + "Register m" + reg[1] + "Reg;\n"
 
         substituteString += "};\n\n" \
                             "{ENDNAMESPACEBLOCK}\n" \
@@ -245,10 +249,10 @@ class ModuleObjectGenerator(object):
 
         # Generate initializer list for member register objects
         registerInitializerList = ""
-        for i in range(len(self.registerObjectGenerators)):
+        for i in range(len(self.memberRegisters)):
             # Generate list addition string
-            regObjectName = self.registerObjectGenerators[i].RegObjectName()
-            if(i < len(self.registerObjectGenerators) - 1):
+            regObjectName = self.memberRegisters[i][1]
+            if(i < len(self.memberRegisters) - 1):
                 listAddition = " m" + regObjectName + "Reg(&regs->" + regObjectName + "),"
             else:
                 listAddition = " m" + regObjectName + "Reg(&regs->" + regObjectName + ")" # Don't include ',' in the final element
@@ -291,9 +295,10 @@ argumentParser.add_argument('namespaces', nargs='+', help="List of namespaces, t
 args = argumentParser.parse_args()
 
 namespaceMatcher = re.compile(r"namespace (\w+)")
-registerMatcher = re.compile(r"union " + args.module + r"(\w+)Reg\n{\n\s*(\w+) all;\n\s*struct\n\s*{(\s*\w+ \w+\s*:\s*\d+;\n)*\s*} bits;\n};", re.MULTILINE | re.DOTALL)
-registerBankMatcher = re.compile(r"struct (\w+)RegisterBank\n{(.*)};", re.MULTILINE | re.DOTALL)
-registerFieldMatcher = re.compile(r"(\w+) (\w+)\s*:\s*(\d+);")
+moduleMemberMatcher = re.compile(r"\s*" + args.module + r"(\w+)Reg\s+(\w+);\n")
+registerBankMatcher = re.compile(r"struct\s+(\w+)RegisterBank\n{(.*)};", re.MULTILINE | re.DOTALL)
+registerFieldMatcher = re.compile(r"(\w+)\s+(\w+)\s*:\s*(\d+);")
+registerMatcher = re.compile(r"union " + args.module + r"(\w+)Reg\n{\n\s*(\w+)\s+all;\n\s*struct\n\s*{(\s*\w+\s+\w+\s*:\s*\d+;\n)*\s*}\s+bits;\n};", re.MULTILINE | re.DOTALL)
 
 # Guard against nonexistant creation directory or register definition file
 if(os.path.isdir(args.dir) == False):
@@ -358,7 +363,6 @@ print("") # Print extra newline for console readability
 moduleGenerator = ModuleObjectGenerator(args.module, args.namespaces)
 
 registers = registerMatcher.finditer(regString) # Find all iterations of a register struct within the definition file
-
 for reg in registers:
     regName = reg.group(1)
     print("Found register: " + regName + "\n\tFields:")
@@ -376,9 +380,22 @@ for reg in registers:
             print("\t- " + fieldName + " (" + fieldType + " : " + fieldSize + " bits)")
             registerGenerator.AddBitField(fieldType, fieldName, fieldSize)
     
+    # Generate register object files
     moduleGenerator.AddRegisterObject(registerGenerator) # Add generator to module
+
+print("") # Print extra newline for console readability
+
+# Read through register bank definition and add members to the module implementation
+print("Scanning register bank\n\tModule members:")
+memberRegisters = moduleMemberMatcher.finditer(regBankMatch.group(2))
+for member in memberRegisters:
+    memberTuple = (member.group(1), member.group(2))
+    print("\t- " + memberTuple[0] + "Register named m" + memberTuple[1] + "Reg")
+    moduleGenerator.AddMember(memberTuple)
 
 print("") # Print extra newline for console readability
 
 # Generate module implementation
 moduleGenerator.GenerateModuleAndRegisterFiles(includeDir, srcDir)
+
+print("\nDone")
