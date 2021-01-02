@@ -25,7 +25,6 @@ public:
 
 	uint8_t GetApb2Prescale() const;
 	void SetApb2Prescale(uint8_t val);
-
 };
 
 }

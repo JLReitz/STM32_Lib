@@ -85,7 +85,6 @@ public:
 
 	bool GetPll3Ready() const;
 	void SetPll3Ready(bool val);
-
 };
 
 }

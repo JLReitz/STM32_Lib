@@ -144,6 +144,59 @@ union RccPllClockSourceSelectReg
 	} bits;
 };
 
+union RccPllConfigurationReg
+{
+	uint32_t all;
+	struct
+	{
+		bool Pll1FracEnable : 1;
+		bool Pll1VcoSel : 1;
+		uint8_t Pll1InputFreqRange : 2;
+		bool Pll2FracEnable : 1;
+		bool Pll2VcoSel : 1;
+		uint8_t Pll2InputFreqRange : 2;
+		bool Pll3FracEnable : 1;
+		bool Pll3VcoSel : 1;
+		uint8_t Pll3InputFreqRange : 2;
+		uint8_t rsvd1 : 4;
+		bool Pll1DivPEnable : 1;
+		bool Pll1DivQEnable : 1;
+		bool Pll1DivREnable : 1;
+		bool Pll2DivPEnable : 1;
+		bool Pll2DivQEnable : 1;
+		bool Pll2DivREnable : 1;
+		bool Pll3DivPEnable : 1;
+		bool Pll3DivQEnable : 1;
+		bool Pll3DivREnable : 1;
+		uint8_t rsvd2 : 7;
+	} bits;
+};
+
+union RccPllDividerReg
+{
+	uint32_t all;
+	struct
+	{
+		uint16_t VcoMultFactor : 9;
+		uint8_t DivPFactor : 7;
+		uint8_t DivQFactor : 7;
+		bool rsvd1 : 1;
+		uint8_t DivRFactor : 7;
+		bool rsvd2 : 1;
+	} bits;
+};
+
+union RccPllFractionalDividerReg
+{
+	uint32_t all;
+	struct
+	{
+		uint8_t rsvd1 : 3;
+		uint16_t VcoFracFactor : 13;
+		uint32_t rsvd2 : 16;
+	} bits;
+};
+
 struct RccRegisterBank
 {
 	RccSourceControlReg	SourceControl;
@@ -155,6 +208,11 @@ struct RccRegisterBank
 	RccD2ClockConfigurationReg D2ClockConfiguration;
 	RccD3ClockConfigurationReg D3ClockConfiguration;
 	RccPllClockSourceSelectReg PllClockSourceSelect;
+	RccPllConfigurationReg PllConfiguration;
+	RccPllDividerReg Pll1Dividers;
+	RccPllFractionalDividerReg Pll1FractionalDivider;
+	RccPllDividerReg Pll2Dividers;
+	RccPllFractionalDividerReg Pll2FractionalDivider;
 };
 
 #endif

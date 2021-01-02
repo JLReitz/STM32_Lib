@@ -25,7 +25,6 @@ public:
 
 	uint8_t GetCsiTrim() const;
 	void SetCsiTrim(uint8_t val);
-
 };
 
 }

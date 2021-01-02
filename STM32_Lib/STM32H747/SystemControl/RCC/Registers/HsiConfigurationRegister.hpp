@@ -25,7 +25,6 @@ public:
 
 	uint8_t GetHsiTrim() const;
 	void SetHsiTrim(uint8_t val);
-
 };
 
 }

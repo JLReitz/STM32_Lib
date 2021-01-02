@@ -52,7 +52,6 @@ public:
 
 	uint8_t GetMcuClkOut2Sel() const;
 	void SetMcuClkOut2Sel(uint8_t val);
-
 };
 
 }

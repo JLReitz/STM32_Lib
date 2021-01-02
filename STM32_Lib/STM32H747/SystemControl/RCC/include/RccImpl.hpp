@@ -10,6 +10,9 @@
 #include "../Registers/D2ClockConfigurationRegister.hpp"
 #include "../Registers/D3ClockConfigurationRegister.hpp"
 #include "../Registers/PllClockSourceSelectRegister.hpp"
+#include "../Registers/PllConfigurationRegister.hpp"
+#include "../Registers/PllDividerRegister.hpp"
+#include "../Registers/PllFractionalDividerRegister.hpp"
 
 namespace stm32
 {
@@ -45,6 +48,11 @@ private:
 	stm32::sysctrl::rcc::regs::D2ClockConfigurationRegister mD2ClockConfigurationReg;
 	stm32::sysctrl::rcc::regs::D3ClockConfigurationRegister mD3ClockConfigurationReg;
 	stm32::sysctrl::rcc::regs::PllClockSourceSelectRegister mPllClockSourceSelectReg;
+	stm32::sysctrl::rcc::regs::PllConfigurationRegister mPllConfigurationReg;
+	stm32::sysctrl::rcc::regs::PllDividerRegister mPll1DividersReg;
+	stm32::sysctrl::rcc::regs::PllFractionalDividerRegister mPll1FractionalDividerReg;
+	stm32::sysctrl::rcc::regs::PllDividerRegister mPll2DividersReg;
+	stm32::sysctrl::rcc::regs::PllFractionalDividerRegister mPll2FractionalDividerReg;
 };
 
 }

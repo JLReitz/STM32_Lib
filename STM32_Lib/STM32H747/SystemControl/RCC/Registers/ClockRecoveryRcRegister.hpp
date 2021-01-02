@@ -22,7 +22,6 @@ public:
 
 	uint16_t GetHsi48Cal() const;
 	void SetHsi48Cal(uint16_t val);
-
 };
 
 }

@@ -28,7 +28,6 @@ public:
 
 	uint8_t GetCorePrescale() const;
 	void SetCorePrescale(uint8_t val);
-
 };
 
 }

@@ -22,7 +22,6 @@ public:
 
 	uint8_t GetApb4Prescale() const;
 	void SetApb4Prescale(uint8_t val);
-
 };
 
 }

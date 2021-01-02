@@ -31,7 +31,6 @@ public:
 
 	uint8_t GetPll3Prescale() const;
 	void SetPll3Prescale(uint8_t val);
-
 };
 
 }
