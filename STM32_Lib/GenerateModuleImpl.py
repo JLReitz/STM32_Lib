@@ -289,8 +289,9 @@ argumentParser = argparse.ArgumentParser(
         " implementation")
 argumentParser.add_argument("dir", help="Parent directory of the generated files")
 argumentParser.add_argument("module", help="Name of the hardware module which is controlled by these registers in " \
-                            "camel-case format (e.g. SystemControl, BasicTimer, or GpioPort")
-argumentParser.add_argument('namespaces', nargs='+', help="List of namespaces, top to bottom, which this module will sit within")
+                            "camel-case format (e.g. SystemControl, BasicTimer, or GpioPort)")
+argumentParser.add_argument('namespaces', nargs='+', help="List of namespaces, top to bottom, which this module will "\
+                            "sit within. All lowercase.")
 
 args = argumentParser.parse_args()
 
