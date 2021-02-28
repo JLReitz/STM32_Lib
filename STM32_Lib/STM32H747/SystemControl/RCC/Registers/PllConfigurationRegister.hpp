@@ -1,11 +1,10 @@
-#ifndef PLLCONFIGURATION_HPP_
-#define PLLCONFIGURATION_HPP_
+#pragma once
 
 #include "../Registers/Registers.h"
 
 #include <Common/Interfaces/RegisterInterface.hpp>
 
-namespace stm32
+namespace stm32h747
 {
 namespace sysctrl
 {
@@ -80,4 +79,3 @@ public:
 }
 }
 
-#endif

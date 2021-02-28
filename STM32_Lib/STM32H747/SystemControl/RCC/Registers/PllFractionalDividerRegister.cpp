@@ -1,6 +1,6 @@
 #include "PllFractionalDividerRegister.hpp"
 
-namespace stm32
+namespace stm32h747
 {
 namespace sysctrl
 {

@@ -1,6 +1,6 @@
 #include "D3ClockConfigurationRegister.hpp"
 
-namespace stm32
+namespace stm32h747
 {
 namespace sysctrl
 {

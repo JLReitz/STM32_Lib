@@ -60,8 +60,7 @@ class RegisterObjectGenerator(object):
         self.sourceFileContents = self.__GenerateSourceBeginning()
 
     def __GenerateHeaderBeginning(self):
-        substituteString = "#ifndef {CAPREGOBJECTNAME}_HPP_\n" \
-                           "#define {CAPREGOBJECTNAME}_HPP_\n\n" \
+        substituteString = "#pragma once\n\n" \
                            "#include \"../Registers/Registers.h\"\n\n" \
                            "#include <Common/Interfaces/RegisterInterface.hpp>\n\n" \
                            "{NAMESPACEBLOCK}\n" \
@@ -83,8 +82,7 @@ class RegisterObjectGenerator(object):
 
     def __GenerateHeaderEnd(self):
         substituteString = "};\n\n" \
-                           "{ENDNAMESPACEBLOCK}\n" \
-                           "#endif\n"
+                           "{ENDNAMESPACEBLOCK}\n"
 
         substituteString = self.endNamespaceBlockSubstitute.sub(self.endNamespaceBlockString, substituteString)
 
@@ -146,19 +144,20 @@ class ModuleObjectGenerator(object):
     def AddRegisterObject(self, registerObjectGenerator):
         self.registerObjectGenerators.append(registerObjectGenerator)
 
-    def GenerateModuleAndRegisterFiles(self, includeDir, sourceDir):
+    def GenerateModuleAndRegisterFiles(self, includeDir, sourceDir, registersOnly):
         # Generate register objects first
         for reg in self.registerObjectGenerators:
             reg.GenerateFiles()
 
-        # Now generate this module
-        headerFilePath = includeDir + "/" + self.moduleNameString + "Impl.hpp"
-        headerFileContents = self.__GenerateHeaderContents()
-        CreateAndWriteToFile(headerFilePath, headerFileContents)
+        # Now generate this module, if allowed to do so
+        if not registersOnly:
+            headerFilePath = includeDir + "/" + self.moduleNameString + "Impl.hpp"
+            headerFileContents = self.__GenerateHeaderContents()
+            CreateAndWriteToFile(headerFilePath, headerFileContents)
 
-        sourceFilePath = sourceDir + "/" + self.moduleNameString + "Impl.cpp"
-        sourceFileContents = self.__GenerateSourceContents()
-        CreateAndWriteToFile(sourceFilePath, sourceFileContents)
+            sourceFilePath = sourceDir + "/" + self.moduleNameString + "Impl.cpp"
+            sourceFileContents = self.__GenerateSourceContents()
+            CreateAndWriteToFile(sourceFilePath, sourceFileContents)
 
     # Private methods
     def __init__(self, moduleName, namespaces):
@@ -192,8 +191,7 @@ class ModuleObjectGenerator(object):
         self.endNamespaceBlockString += "}\n"
 
     def __GenerateHeaderContents(self):
-        substituteString = "#ifndef {CAPMODULENAME}IMPL_HPP_\n" \
-                           "#define {CAPMODULENAME}IMPL_HPP_\n\n"
+        substituteString = "#pragma once\n\n" \
         
         # Include register object headers
         for reg in self.registerObjectGenerators:
@@ -211,15 +209,16 @@ class ModuleObjectGenerator(object):
                             "{\n" \
                             "public:\n\n" \
                             "\t{MODULENAME}Impl(struct {MODULENAME}RegisterBank* const regs);\n\n" \
+                            "\t// <Enter module-level functions here and below>\n\n" \
                             "protected:\n\n" \
+                            "\t// <Please remove \"protected\" access specifier if it is not used>\n\n" \
                             "private:\n\n"
         
         for reg in self.memberRegisters:
             substituteString += "\t{REGSNAMESPACE}::" + reg[0] + "Register m" + reg[1] + "Reg;\n"
 
         substituteString += "};\n\n" \
-                            "{ENDNAMESPACEBLOCK}\n" \
-                            "#endif\n"
+                            "{ENDNAMESPACEBLOCK}\n"
 
         # Capitalize register object name and substitute into string above
         capModuleNameString = self.moduleNameString.upper()
@@ -286,7 +285,9 @@ class ModuleObjectGenerator(object):
 # Command line arguments
 argumentParser = argparse.ArgumentParser(
     description="Parses a \'reg.h\' file for a given module to auto-generate the required register objects and module"
-        " implementation")
+                " implementation")
+argumentParser.add_argument("-r", "--registers-only", action="store_true", help="Only generate a new register set. "
+                            "Don't touch the current module implementation")
 argumentParser.add_argument("dir", help="Parent directory of the generated files")
 argumentParser.add_argument("module", help="Name of the hardware module which is controlled by these registers in " \
                             "camel-case format (e.g. SystemControl, BasicTimer, or GpioPort)")
@@ -354,8 +355,10 @@ if(regBankMatch.group(1) != args.module):
              args.module + ". Please change it accordingly.")
 
 # Begin generation
-print("Generating implementation for module " + args.module + " in directory " + args.dir)
-print("") # Print extra newline for console readability
+if(args.registers_only):
+    print("Generating register set for module " + args.module + " in directory " + args.dir + "\n")
+else:
+    print("Generating implementation for module " + args.module + " in directory " + args.dir + "\n")
 print("Using namespaces:")
 for ns in args.namespaces:
     print("\t" + ns)
@@ -363,8 +366,10 @@ print("") # Print extra newline for console readability
 
 moduleGenerator = ModuleObjectGenerator(args.module, args.namespaces)
 
+notifications = []
 registers = registerMatcher.finditer(regString) # Find all iterations of a register struct within the definition file
 for reg in registers:
+    fieldSum = 0
     regName = reg.group(1)
     print("Found register: " + regName + "\n\tFields:")
 
@@ -376,6 +381,9 @@ for reg in registers:
         fieldName = field.group(2)
         fieldSize = field.group(3)
 
+        # Accumulate field sum
+        fieldSum += int(fieldSize)
+
         # If the bitfield is not reserved, add it to the generator
         if(re.search(r"rsvd", fieldName) == None):
             print("\t- " + fieldName + " (" + fieldType + " : " + fieldSize + " bits)")
@@ -383,6 +391,10 @@ for reg in registers:
     
     # Generate register object files
     moduleGenerator.AddRegisterObject(registerGenerator) # Add generator to module
+
+    if(fieldSum != 32):
+        notifications.append("WARNING: Register definition for " + regName + " has fields which do not add up to the "
+                             "expected register size.\n\tExpected size: 32\n\tActual size: {:d}".format(fieldSum))
 
 print("") # Print extra newline for console readability
 
@@ -397,6 +409,12 @@ for member in memberRegisters:
 print("") # Print extra newline for console readability
 
 # Generate module implementation
-moduleGenerator.GenerateModuleAndRegisterFiles(includeDir, srcDir)
+moduleGenerator.GenerateModuleAndRegisterFiles(includeDir, srcDir, args.registers_only)
+
+print("") # Print extra newline for console readability
+
+# Print notifications
+for n in notifications:
+    print(n)
 
 print("\nDone")
