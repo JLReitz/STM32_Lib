@@ -1,4 +1,4 @@
-#include "../Include/RccImpl.hpp"
+#include "../Include/RccDriver.hpp"
 
 namespace stm32h747
 {
@@ -6,16 +6,16 @@ namespace sysctrl
 {
 namespace rcc
 {
-namespace impl
+namespace driver
 {
 
 using namespace stm32h747::sysctrl::rcc::defines;
 
 RccRegisterBank gRccRegs;
-RccImpl gStaticInstance(&gRccRegs);
+RccDriver gStaticInstance(&gRccRegs);
 
 /* ================================================================================================
- *  stm32h747::sysctrl::rcc::impl::RccImpl
+ *  stm32h747::sysctrl::rcc::driver::RccDriver
  *  ---------------------------------------------
  *  Methods
  * ================================================================================================
@@ -23,7 +23,7 @@ RccImpl gStaticInstance(&gRccRegs);
 
 // Public /////////////////////////////////////////////////////////////////
 
-RccImpl::RccImpl(struct RccRegisterBank* const regs)
+RccDriver::RccDriver(struct RccRegisterBank* const regs)
 :	 mSourceControlReg(&regs->SourceControl), mHsiConfigurationReg(&regs->HsiConfiguration),
 	 mClockRecoveryRcReg(&regs->ClockRecoveryRc), mCsiConfigurationReg(&regs->CsiConfiguration),
 	 mClockConfigurationReg(&regs->ClockConfiguration), mD1ClockConfigurationReg(&regs->D1ClockConfiguration),
@@ -76,32 +76,32 @@ RccImpl::RccImpl(struct RccRegisterBank* const regs)
 	Initialize();
 }
 
-uint32_t RccImpl::CsiSpeedHz() const
+uint32_t RccDriver::CsiSpeedHz() const
 {
 	return mCsiClkHz;
 }
 
-void RccImpl::HoldCpu1Boot(bool enable)
+void RccDriver::HoldCpu1Boot(bool enable)
 {
 	mGlobalControlReg.SetBootCpu1(!enable);
 }
 
-void RccImpl::HoldCpu2Boot(bool enable)
+void RccDriver::HoldCpu2Boot(bool enable)
 {
 	mGlobalControlReg.SetBootCpu2(!enable);
 }
 
-uint32_t RccImpl::HseSpeedHz() const
+uint32_t RccDriver::HseSpeedHz() const
 {
 	return mHseClkHz;
 }
 
-uint32_t RccImpl::HsiSpeedHz() const
+uint32_t RccDriver::HsiSpeedHz() const
 {
 	return mHsiClkHz;
 }
 
-void RccImpl::InitializePll1(uint8_t inputDivider, PllVcoSelection vcoSelect, float clockScale)
+void RccDriver::InitializePll1(uint8_t inputDivider, PllVcoSelection vcoSelect, float clockScale)
 {
 	// Configure the input divider
 	mPllClockSourceSelectReg.SetPll1Prescale(inputDivider);
@@ -116,69 +116,69 @@ void RccImpl::InitializePll1(uint8_t inputDivider, PllVcoSelection vcoSelect, fl
 	// TODO implement some watchdog to break the spell if the PLL doesn't lock, then return false
 }
 
-RccImpl& RccImpl::Instance()
+RccDriver& RccDriver::Instance()
 {
 	return gStaticInstance;
 }
 
-bool RccImpl::IsCsiReady() const
+bool RccDriver::IsCsiReady() const
 {
 	return mSourceControlReg.GetCsiReady();
 }
 
-bool RccImpl::IsHseReady() const
+bool RccDriver::IsHseReady() const
 {
 	return mSourceControlReg.GetHseReady();
 }
 
-bool RccImpl::IsHsiReady() const
+bool RccDriver::IsHsiReady() const
 {
 	return mSourceControlReg.GetHsiReady();
 }
 
-bool RccImpl::IsLsiReady() const
+bool RccDriver::IsLsiReady() const
 {
 	return mClockControlAndStatusReg.GetLsiOscReady();
 }
 
-uint32_t RccImpl::LsiSpeedHz() const
+uint32_t RccDriver::LsiSpeedHz() const
 {
 	return mLsiClkHz;
 }
 
-void RccImpl::SetPllClockSource(PllClockSource source)
+void RccDriver::SetPllClockSource(PllClockSource source)
 {
 	mPllClockSourceSelectReg.SetPllSource((uint8_t)source);
 }
 
-void RccImpl::TurnCsiOff()
+void RccDriver::TurnCsiOff()
 {
 	mSourceControlReg.SetCsiOn(false);
 }
 
-void RccImpl::TurnCsiOn()
+void RccDriver::TurnCsiOn()
 {
 	mSourceControlReg.SetCsiOn(true);
 }
 
-void RccImpl::TurnHseOff()
+void RccDriver::TurnHseOff()
 {
 	mSourceControlReg.SetHseOn(false);
 }
 
-void RccImpl::TurnHseOn(uint32_t externalClockSpeedHz)
+void RccDriver::TurnHseOn(uint32_t externalClockSpeedHz)
 {
 	// TODO: Check allowable range
 	mHseClkHz = externalClockSpeedHz;
 	mSourceControlReg.SetHseOn(true);
 }
 
-void RccImpl::TurnHsiOff()
+void RccDriver::TurnHsiOff()
 {
 	mSourceControlReg.SetHsiOn(false);
 }
 
-void RccImpl::TurnHsiOn(uint32_t requestedClockSpeedHz)
+void RccDriver::TurnHsiOn(uint32_t requestedClockSpeedHz)
 {
 	// The HSI clock supports 8, 16, 32, or 64MHz
 	if(requestedClockSpeedHz <= 8000000UL)
@@ -205,12 +205,12 @@ void RccImpl::TurnHsiOn(uint32_t requestedClockSpeedHz)
 	mSourceControlReg.SetHsiOn(true);
 }
 
-void RccImpl::TurnLsiOff()
+void RccDriver::TurnLsiOff()
 {
 	mClockControlAndStatusReg.SetLsiOscEn(false);
 }
 
-void RccImpl::TurnLsiOn()
+void RccDriver::TurnLsiOn()
 {
 	mClockControlAndStatusReg.SetLsiOscEn(true);
 }
@@ -219,7 +219,7 @@ void RccImpl::TurnLsiOn()
 
 // Private ////////////////////////////////////////////////////////////////
 
-void RccImpl::Initialize()
+void RccDriver::Initialize()
 {
 	// Cache HSE and HSI startup configurations
 	mHseClkHz = 0;

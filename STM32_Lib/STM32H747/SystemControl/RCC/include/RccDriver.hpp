@@ -51,22 +51,22 @@ namespace sysctrl
 {
 namespace rcc
 {
-namespace impl
+namespace driver
 {
 
 /* ================================================================================================
- *  stm32h747::sysctrl::rcc::impl::RccImpl
+ *  stm32h747::sysctrl::rcc::driver::RccDriver
  * ================================================================================================
  *
  * <Enter module description here>
  */
-class RccImpl
+class RccDriver
 {
 public:
 
-	RccImpl(struct RccRegisterBank* const regs);
+	RccDriver(struct RccRegisterBank* const regs);
 
-	static RccImpl& Instance();
+	static RccDriver& Instance();
 
 	/*
 	 * HSE (High-Speed External Oscillator) related methods

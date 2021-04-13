@@ -151,11 +151,11 @@ class ModuleObjectGenerator(object):
 
         # Now generate this module, if allowed to do so
         if not registersOnly:
-            headerFilePath = includeDir + "/" + self.moduleNameString + "Impl.hpp"
+            headerFilePath = includeDir + "/" + self.moduleNameString + "Driver.hpp"
             headerFileContents = self.__GenerateHeaderContents()
             CreateAndWriteToFile(headerFilePath, headerFileContents)
 
-            sourceFilePath = sourceDir + "/" + self.moduleNameString + "Impl.cpp"
+            sourceFilePath = sourceDir + "/" + self.moduleNameString + "Driver.cpp"
             sourceFileContents = self.__GenerateSourceContents()
             CreateAndWriteToFile(sourceFilePath, sourceFileContents)
 
@@ -178,7 +178,7 @@ class ModuleObjectGenerator(object):
             self.regNamespaceString += ns + "::"
         self.regNamespaceString += "regs"
 
-        # Add "impl" to the namespace that this module will sit under
+        # Add "Driver" to the namespace that this module will sit under
         self.namespaceString = ""
         self.namespaceBlockString = ""
         self.endNamespaceBlockString = ""
@@ -186,8 +186,8 @@ class ModuleObjectGenerator(object):
             self.namespaceString += ns + "::"
             self.namespaceBlockString += "namespace " + ns + "\n{\n"
             self.endNamespaceBlockString += "}\n"
-        self.namespaceString += "impl"
-        self.namespaceBlockString += "namespace impl\n{\n"
+        self.namespaceString += "Driver"
+        self.namespaceBlockString += "namespace Driver\n{\n"
         self.endNamespaceBlockString += "}\n"
 
     def __GenerateHeaderContents(self):
@@ -200,15 +200,15 @@ class ModuleObjectGenerator(object):
 
         substituteString += "{NAMESPACEBLOCK}\n" \
                             "/* ================================================================================================\n" \
-                            " *  {NAMESPACE}::{MODULENAME}Impl\n" \
+                            " *  {NAMESPACE}::{MODULENAME}Driver\n" \
                             " * ================================================================================================\n" \
                             " *\n" \
                             " * <Enter module description here>\n" \
                             " */\n" \
-                            "class {MODULENAME}Impl\n" \
+                            "class {MODULENAME}Driver\n" \
                             "{\n" \
                             "public:\n\n" \
-                            "\t{MODULENAME}Impl(struct {MODULENAME}RegisterBank* const regs);\n\n" \
+                            "\t{MODULENAME}Driver(struct {MODULENAME}RegisterBank* const regs);\n\n" \
                             "\t// <Enter module-level functions here and below>\n\n" \
                             "protected:\n\n" \
                             "\t// <Please remove \"protected\" access specifier if it is not used>\n\n" \
@@ -234,16 +234,16 @@ class ModuleObjectGenerator(object):
         return substituteString
 
     def __GenerateSourceContents(self):
-        substituteString = "#include \"../Include/{MODULENAME}Impl.hpp\"\n\n" \
+        substituteString = "#include \"../Include/{MODULENAME}Driver.hpp\"\n\n" \
                            "{NAMESPACEBLOCK}\n" \
                            "/* ================================================================================================\n" \
-                           " *  {NAMESPACE}::{MODULENAME}Impl\n" \
+                           " *  {NAMESPACE}::{MODULENAME}Driver\n" \
                            " *  ---------------------------------------------\n" \
                            " *  Methods\n" \
                            " * ================================================================================================\n" \
                            " */\n\n" \
                            "// Public /////////////////////////////////////////////////////////////////\n\n" \
-                           "{MODULENAME}Impl::{MODULENAME}Impl(struct {MODULENAME}RegisterBank* const regs)\n" \
+                           "{MODULENAME}Driver::{MODULENAME}Driver(struct {MODULENAME}RegisterBank* const regs)\n" \
                            ":\t"
 
         # Generate initializer list for member register objects
