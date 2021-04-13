@@ -9,6 +9,8 @@ namespace rcc
 namespace impl
 {
 
+using namespace stm32h747::sysctrl::rcc::defines;
+
 RccRegisterBank gRccRegs;
 RccImpl gStaticInstance(&gRccRegs);
 
@@ -99,9 +101,14 @@ uint32_t RccImpl::HsiSpeedHz() const
 	return mHsiClkHz;
 }
 
-void RccImpl::InitializePll1(uint8_t inputDivider, stm32h747::sysctrl::rcc::defines::PllVcoSelection vcoSelect,
-							 float clockScale)
+void RccImpl::InitializePll1(uint8_t inputDivider, PllVcoSelection vcoSelect, float clockScale)
 {
+	// Configure the input divider
+	mPllClockSourceSelectReg.SetPll1Prescale(inputDivider);
+
+	// Select VCO
+	mPllConfigurationReg.SetPll1VcoSel((bool)vcoSelect);
+
 	// Set PLL1FRACEN and then write values to registers
 
 	// Set PLLON bit then wait for PLLRDY to be raised
@@ -137,6 +144,11 @@ bool RccImpl::IsLsiReady() const
 uint32_t RccImpl::LsiSpeedHz() const
 {
 	return mLsiClkHz;
+}
+
+void RccImpl::SetPllClockSource(PllClockSource source)
+{
+	mPllClockSourceSelectReg.SetPllSource((uint8_t)source);
 }
 
 void RccImpl::TurnCsiOff()
